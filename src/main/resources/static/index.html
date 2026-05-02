@@ -63,6 +63,29 @@
 
     <h1>🚀 Real-Time Ad-Campaign Analytics</h1>
 
+    <div style="text-align: center; margin-bottom: 2rem;">
+        <label>Event Type: 
+            <select id="globalEventType" onchange="updateAllStats()">
+                <option value="">All</option>
+                <option value="view">View</option>
+                <option value="click">Click</option>
+            </select>
+        </label>
+        <span style="margin: 0 1rem;"></span>
+        <label>Country: 
+            <select id="globalCountry" onchange="updateAllStats()">
+                <option value="">All</option>
+                <option value="US">US</option>
+                <option value="UK">UK</option>
+                <option value="CA">CA</option>
+                <option value="DE">DE</option>
+                <option value="FR">FR</option>
+                <option value="IN">IN</option>
+                <option value="JP">JP</option>
+            </select>
+        </label>
+    </div>
+
     <div class="dashboard">
         <div class="card">
             <h2>Campaign CTR (Live)</h2>
@@ -87,9 +110,25 @@
         let ctrChart;
         let hourlyChart;
 
+        function getFilterParams() {
+            const eventType = document.getElementById('globalEventType').value;
+            const country = document.getElementById('globalCountry').value;
+            let params = new URLSearchParams();
+            if (eventType) params.append('eventType', eventType);
+            if (country) params.append('country', country);
+            return params.toString();
+        }
+
+        function updateAllStats() {
+            fetchLiveStats();
+            fetchHourlyStats();
+        }
+
         async function fetchLiveStats() {
             try {
-                const response = await fetch('/api/stats/live');
+                const params = getFilterParams();
+                const url = params ? `/api/stats/live?${params}` : '/api/stats/live';
+                const response = await fetch(url);
                 const data = await response.json();
                 
                 const labels = data.map(d => d.campaign_name);
@@ -136,7 +175,9 @@
         async function fetchHourlyStats() {
             try {
                 const campaignId = document.getElementById('campaignSelect').value;
-                const response = await fetch(`/api/stats/hourly?campaignId=${campaignId}`);
+                const params = getFilterParams();
+                const url = `/api/stats/hourly?campaignId=${campaignId}` + (params ? `&${params}` : '');
+                const response = await fetch(url);
                 const data = await response.json();
 
                 const labels = data.map(d => new Date(d.hour).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}));

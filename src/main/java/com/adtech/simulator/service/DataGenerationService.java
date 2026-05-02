@@ -45,8 +45,8 @@ public class DataGenerationService implements CommandLineRunner {
             ));
         }
 
-        System.out.println("Starting Background Data Generation for 1 Million Events...");
-        generateAndInsertEventsAsync();
+//        System.out.println("Starting Background Data Generation for 1 Million Events...");
+//        generateAndInsertEventsAsync();
     }
 
     @Async
